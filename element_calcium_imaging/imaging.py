@@ -37,7 +37,7 @@ def activate(imaging_schema_name, scan_schema_name=None, *,
     global _linking_module
     _linking_module = linking_module
 
-    scan.activate(scan_schema_name, create_schema=create_schema,	
+    scan.activate(scan_schema_name, create_schema=create_schema,
                   create_tables=create_tables, linking_module=linking_module)
     schema.activate(imaging_schema_name, create_schema=create_schema,
                     create_tables=create_tables, add_objects=_linking_module.__dict__)
@@ -62,7 +62,7 @@ class ProcessingParamSet(dj.Lookup):
     definition = """  #  Parameter set used for processing of calcium imaging data
     paramset_idx:  smallint
     ---
-    -> ProcessingMethod    
+    -> ProcessingMethod
     paramset_desc: varchar(128)
     param_set_hash: uuid
     unique index (param_set_hash)
@@ -166,10 +166,10 @@ class Curation(dj.Manual):
     -> Processing
     curation_id: int
     ---
-    curation_time: datetime             # time of generation of this set of curated results 
+    curation_time: datetime             # time of generation of this set of curated results
     curation_output_dir: varchar(255)   # output directory of the curated results, relative to root data directory
     manual_curation: bool               # has manual curation been performed on this result?
-    curation_note='': varchar(2000)  
+    curation_note='': varchar(2000)
     """
 
     def create1_from_processing_task(self, key, is_curated=False, curation_note=''):
@@ -217,7 +217,7 @@ class MotionCorrection(dj.Imported):
         outlier_frames=null : longblob  # mask with true for frames with outlier shifts (already corrected)
         y_shifts            : longblob  # (pixels) y motion correction shifts
         x_shifts            : longblob  # (pixels) x motion correction shifts
-        z_shifts=null       : longblob  # (pixels) z motion correction shifts (z-drift) 
+        z_shifts=null       : longblob  # (pixels) z motion correction shifts (z-drift)
         y_std               : float     # (pixels) standard deviation of y shifts across all frames
         x_std               : float     # (pixels) standard deviation of x shifts across all frames
         z_std=null          : float     # (pixels) standard deviation of z shifts across all frames
@@ -480,8 +480,8 @@ class Segmentation(dj.Computed):
         mask_center_y   : int       # center y coordinate in pixel
         mask_center_z   : int       # center z coordinate in pixel
         mask_xpix       : longblob  # x coordinates in pixels
-        mask_ypix       : longblob  # y coordinates in pixels      
-        mask_zpix       : longblob  # z coordinates in pixels        
+        mask_ypix       : longblob  # y coordinates in pixels
+        mask_zpix       : longblob  # z coordinates in pixels
         mask_weights    : longblob  # weights of the mask at the indices above
         """
 
@@ -613,7 +613,7 @@ class Fluorescence(dj.Computed):
         definition = """
         -> master
         -> Segmentation.Mask
-        -> scan.Channel.proj(fluo_channel='channel')  # the channel that this trace comes from         
+        -> scan.Channel.proj(fluo_channel='channel')  # the channel that this trace comes from
         ---
         fluorescence                : longblob  # fluorescence trace associated with this mask
         neuropil_fluorescence=null  : longblob  # Neuropil fluorescence trace
@@ -662,7 +662,7 @@ class Fluorescence(dj.Computed):
 
             self.insert1(key)
             self.Trace.insert(fluo_traces)
-        
+
         else:
             raise NotImplementedError('Unknown/unimplemented method: {}'.format(method))
 
@@ -688,7 +688,7 @@ class Activity(dj.Computed):
         -> master
         -> Fluorescence.Trace
         ---
-        activity_trace: longblob  # 
+        activity_trace: longblob  #
         """
 
     @property

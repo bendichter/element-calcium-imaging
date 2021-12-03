@@ -92,11 +92,10 @@ def get_scan_box_files(scan_key: dict) -> list:
 
 # ----------------------------- Table declarations ----------------------
 
-
 @schema
 class AcquisitionSoftware(dj.Lookup):
     definition = """  # Name of acquisition software - e.g. ScanImage, Scanbox
-    acq_software: varchar(24)    
+    acq_software: varchar(24)
     """
     contents = zip(['ScanImage', 'Scanbox'])
 
@@ -114,12 +113,12 @@ class Channel(dj.Lookup):
 
 @schema
 class Scan(dj.Manual):
-    definition = """    
+    definition = """
     -> Session
-    scan_id: int        
+    scan_id: int
     ---
-    -> Equipment  
-    -> AcquisitionSoftware  
+    -> Equipment
+    -> AcquisitionSoftware
     scan_notes='' : varchar(4095)         # free-notes
     """
 
@@ -127,9 +126,9 @@ class Scan(dj.Manual):
 @schema
 class ScanLocation(dj.Manual):
     definition = """
-    -> Scan   
-    ---    
-    -> Location      
+    -> Scan
+    ---
+    -> Location
     """
 
 
@@ -146,7 +145,7 @@ class ScanInfo(dj.Imported):
     x                    : float     # (um) ScanImage's 0 point in the motor coordinate system
     y                    : float     # (um) ScanImage's 0 point in the motor coordinate system
     z                    : float     # (um) ScanImage's 0 point in the motor coordinate system
-    fps                  : float     # (Hz) frames per second - Volumetric Scan Rate 
+    fps                  : float     # (Hz) frames per second - Volumetric Scan Rate
     bidirectional        : boolean   # true = bidirectional scanning
     usecs_per_line=null  : float     # microseconds per scan line
     fill_fraction=null   : float     # raster scan temporal fill fraction (see scanimage)
@@ -159,6 +158,7 @@ class ScanInfo(dj.Imported):
         ---
         px_height         : smallint  # height in pixels
         px_width          : smallint  # width in pixels
+        px_depth=null     : smallint  # depth in pixels
         um_height=null    : float     # height in microns
         um_width=null     : float     # width in microns
         field_x           : float     # (um) center of field in the motor coordinate system
@@ -241,7 +241,7 @@ class ScanInfo(dj.Imported):
                     'Loading routine not implemented for Scanbox multiROI scan mode')
 
             # Insert in ScanInfo
-            x_zero, y_zero, z_zero = sbx_meta['stage_pos'] 
+            x_zero, y_zero, z_zero = sbx_meta['stage_pos']
             self.insert1(dict(key,
                               nfields=sbx_meta['num_fields']
                               if is_multiROI else sbx_meta['num_planes'],
@@ -279,3 +279,8 @@ class ScanInfo(dj.Imported):
 
         scan_files = [pathlib.Path(f).relative_to(root_dir).as_posix() for f in scan_filepaths]
         self.ScanFile.insert([{**key, 'file_path': f} for f in scan_files])
+
+    @classmethod
+    def make_nwb(cls, scan_key):
+        from .export import caimg_to_nwb
+        return caimg_to_nwb(scan_key)
